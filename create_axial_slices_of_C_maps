@@ -1,0 +1,43 @@
+#!/bin/bash
+#bash ~/Documents/scripts/postmortembrain-mpm/Specific_analyses/EBC/MT_calibration/plot_C_slice_for_all
+### writes out middle z slice of each sample for figure about variation
+
+result_folder="/data/pt_02101/results/mt_calibration_7t"
+#cd $result_folder
+
+variation="MTvariation"
+slicer_settings="-i 0 15 -z ${z_to_use}"
+slicer_settings="-i $range -z 0.5"
+
+for brain_slash_id in "009_C_W_HOIMA-2_mr_201112_Terra_7T_32Ch_WB" "018_C_C_TOJO_mr_200922_Terra_7T_32Ch_WB" "025_C_W_RAVEL_TAI_S_mr_200923_Terra_7T_32Ch_WB" "026_C_W_OSCAR_TAI_S_mr_200921_Terra_7T_32Ch_WB" "032_C_C_SAMSON_SL_TAC_mr_210206_Terra_7T_32Ch_WB"; do
+
+
+	z=.50
+
+	subfolder="${result_folder}/${brain_slash_id}"
+	c_file="${subfolder}/C_${variation}_variation_${brain_slash_id}_2p1_run01_brain_masked.nii"
+	c_perc_file="${subfolder}/C_in_perc_from_mean_${variation}_variation_${brain_slash_id}_2p1_run01_brain_masked.nii"
+	c_SE_perc_file="${subfolder}/C_SE_in_perc_${variation}_variation_${brain_slash_id}_2p1_run01_brain_masked.nii"
+	if [ -f ${orig_file} ]; then
+		#echo "slicing"
+		yes | rm killme*
+		range="0 1.4"
+		slicer_settings="-i $range -u -z $z"
+		slicer ${c_file} ${slicer_settings} ${result_folder}/${brain_slash_id}_mini_c.png
+		range="-15 15"
+		range="-10 10"
+		slicer_settings="-i $range -u -z $z"
+		slicer ${c_perc_file} ${slicer_settings} ${result_folder}/${brain_slash_id}_mini_cperc.png
+		range="0 7.5"
+		range="-10 10"
+		slicer_settings="-i $range -u -z $z"
+		slicer ${c_SE_perc_file} ${slicer_settings} ${result_folder}/${brain_slash_id}_mini_cse.png
+
+		pngappend ${result_folder}/${brain_slash_id}_mini_c.png + ${result_folder}/${brain_slash_id}_mini_cperc.png + ${result_folder}/${brain_slash_id}_mini_cse.png ${result_folder}/MTsat_${variation}_variation_${brain_slash_id}_C_slices_demonstration.png
+
+
+	fi
+done
+
+pngappend ${result_folder}/MTsat_MTvariation_variation_032_C_C_SAMSON_SL_TAC_mr_210206_Terra_7T_32Ch_WB_C_slices_demonstration.png - ${result_folder}/MTsat_MTvariation_variation_026_C_W_OSCAR_TAI_S_mr_200921_Terra_7T_32Ch_WB_C_slices_demonstration.png  - ${result_folder}/MTsat_MTvariation_variation_025_C_W_RAVEL_TAI_S_mr_200923_Terra_7T_32Ch_WB_C_slices_demonstration.png  - ${result_folder}/MTsat_MTvariation_variation_018_C_C_TOJO_mr_200922_Terra_7T_32Ch_WB_C_slices_demonstration.png  - ${result_folder}/MTsat_MTvariation_variation_009_C_W_HOIMA-2_mr_201112_Terra_7T_32Ch_WB_C_slices_demonstration.png  ${result_folder}/MTsat_MTvariation_variation_combined_slices_demonstration.png
+
